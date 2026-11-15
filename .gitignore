@@ -1,0 +1,17 @@
+# Private settings (emails, keys) - never upload
+.env
+
+# Downloaded and generated data - too big for GitHub
+data/
+*.zip
+*.parquet
+
+# Python and editor leftovers
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+.DS_Store
+
+# Project map tool
+floorplan/
