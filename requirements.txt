@@ -1,0 +1,5 @@
+# Python libraries for the scripts that run on your Mac
+# Install with:  python3 -m pip install -r requirements.txt
+requests>=2.31          # downloading files and calling web APIs
+azure-storage-blob>=12.19   # uploading to / reading from Azure Blob Storage
+python-dotenv>=1.0      # reading settings from the .env file
