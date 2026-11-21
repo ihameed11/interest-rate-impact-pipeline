@@ -29,6 +29,7 @@ $NN "hadoop jar /opt/hadoop/share/hadoop/tools/lib/hadoop-streaming-*.jar \
   -output /output/facts"
 
 echo "== 3. Collecting the result"
+rm -f data/staging/facts.tsv data/staging/.facts.tsv.crc
 $NN "hdfs dfs -getmerge /output/facts $P/data/staging/facts.tsv"
 echo "Rows in result: $(wc -l < data/staging/facts.tsv)"
 python3 -m src.mapreduce.upload_output
