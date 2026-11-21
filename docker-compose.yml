@@ -91,8 +91,11 @@ services:
     command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
     ports:
       - "8080:8080"   # Spark web page: http://localhost:8080
+    environment:
+      PYTHONPATH: /opt/project   # lets jobs use "from src.spark import ..."
     volumes:
       - ./config/hadoop:/opt/hadoop-conf:ro
+      - ./config/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
       - ./src:/opt/project/src
       - ./scripts:/opt/project/scripts
 
@@ -106,6 +109,7 @@ services:
       SPARK_WORKER_CORES: "2"
     volumes:
       - ./config/hadoop:/opt/hadoop-conf:ro
+      - ./config/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
 
   spark-worker2:
     <<: *spark
@@ -117,6 +121,7 @@ services:
       SPARK_WORKER_CORES: "2"
     volumes:
       - ./config/hadoop:/opt/hadoop-conf:ro
+      - ./config/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
 
   # ---------------- Database ----------------
   postgres:
