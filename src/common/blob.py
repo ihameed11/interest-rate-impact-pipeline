@@ -16,7 +16,15 @@ def _service() -> BlobServiceClient:
     account = config.require("AZURE_STORAGE_ACCOUNT")
     key = config.require("AZURE_STORAGE_KEY")
     return BlobServiceClient(
-        account_url=f"https://{account}.blob.core.windows.net", credential=key
+        account_url=f"https://{account}.blob.core.windows.net",
+        credential=key,
+        # Send big files in small 4 MB pieces, so one slow moment on a home
+        # connection only costs one small piece, which is then retried.
+        max_single_put_size=4 * 1024 * 1024,
+        max_block_size=4 * 1024 * 1024,
+        connection_timeout=60,
+        read_timeout=300,
+        retry_total=5,
     )
 
 
@@ -37,7 +45,7 @@ def upload_file(local_path: Path, container: str, blob_name: str) -> None:
     """Upload one local file. Replaces the blob if it already exists."""
     client = _service().get_blob_client(container, blob_name)
     with open(local_path, "rb") as f:
-        client.upload_blob(f, overwrite=True, max_concurrency=4)
+        client.upload_blob(f, overwrite=True, max_concurrency=2)
 
 
 def upload_bytes(data: bytes, container: str, blob_name: str) -> None:

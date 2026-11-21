@@ -14,6 +14,7 @@ Usage (from the project folder):
 """
 import sys
 import time
+import zipfile
 
 import requests
 
@@ -40,9 +41,24 @@ def download_quarter(quarter: str, session: requests.Session) -> None:
             for chunk in response.iter_content(chunk_size=1024 * 1024):
                 f.write(chunk)
 
+    # Check the download is complete before storing it: a cut-off download
+    # would not be a valid zip file.
+    if not zipfile.is_zipfile(local_path):
+        raise RuntimeError(f"{quarter}: downloaded file is not a valid zip, run the script again")
+
     size_mb = local_path.stat().st_size / 1_000_000
     print(f"  {quarter}: {size_mb:.1f} MB downloaded, uploading to blob storage")
-    blob.upload_file(local_path, config.RAW_CONTAINER, blob_name)
+
+    # Uploads over a home connection sometimes time out; try up to 3 times.
+    for attempt in range(1, 4):
+        try:
+            blob.upload_file(local_path, config.RAW_CONTAINER, blob_name)
+            break
+        except Exception as error:
+            if attempt == 3:
+                raise
+            print(f"  {quarter}: upload attempt {attempt} failed ({type(error).__name__}), retrying in 30 s")
+            time.sleep(30)
     print(f"  {quarter}: stored as {config.RAW_CONTAINER}/{blob_name}")
 
 

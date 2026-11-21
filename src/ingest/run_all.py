@@ -29,6 +29,8 @@ def main():
     print(f"\n=== Contents of the '{config.RAW_CONTAINER}' container ===")
     total = 0
     for name, size in blob.list_blobs(config.RAW_CONTAINER):
+        if "." not in name.rsplit("/", 1)[-1]:
+            continue  # folder entry, not a file
         total += size
         print(f"  {name:<55} {size / 1_000_000:>8.1f} MB")
     print(f"  {'TOTAL':<55} {total / 1_000_000:>8.1f} MB")
