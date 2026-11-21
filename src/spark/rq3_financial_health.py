@@ -39,7 +39,9 @@ def main():
                      F.round(median("cash_to_assets") * 100, 1).alias("median_cash_to_assets_pct"),
                      F.round(F.avg(F.when(F.col("health_zone") == "distress", 1).otherwise(0)) * 100, 1)
                       .alias("pct_distress_zone"),
-                     F.round(F.avg(F.when(F.col("is_zombie"), 1).otherwise(0)) * 100, 1)
+                     # Only counted where the previous year is known (so not for 2019).
+                     F.round(F.avg(F.when(F.col("prev_fy") == F.col("fy") - 1,
+                                          F.col("is_zombie").cast("int"))) * 100, 1)
                       .alias("pct_zombie"))
                 .withColumn("group", F.lit(group_name)))
 
