@@ -57,3 +57,11 @@ def list_blobs(container: str, prefix: str = ""):
     """Yield (name, size in bytes) for every blob under a prefix."""
     for b in _service().get_container_client(container).list_blobs(name_starts_with=prefix):
         yield b.name, b.size
+
+
+def download_file(container: str, blob_name: str, local_path: Path) -> None:
+    """Download one blob to a local file."""
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+    client = _service().get_blob_client(container, blob_name)
+    with open(local_path, "wb") as f:
+        client.download_blob(max_concurrency=2).readinto(f)

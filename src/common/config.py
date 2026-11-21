@@ -51,8 +51,15 @@ def filing_quarters():
     return quarters
 
 
-# ---------- Local folder for downloads (ignored by Git) ----------
-LOCAL_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+# ---------- Local folders (ignored by Git) ----------
+LOCAL_RAW_DIR = PROJECT_ROOT / "data" / "raw"          # copies of what is in blob "raw"
+LOCAL_STAGING_DIR = PROJECT_ROOT / "data" / "staging"  # inputs/outputs of MapReduce
+
+# The ~23 SEC tags we keep (one financial line item can have several tags).
+LINE_ITEMS_FILE = PROJECT_ROOT / "src" / "common" / "line_items.csv"
+
+# Annual reports only (original and amended).
+ANNUAL_FORMS = {"10-K", "10-K/A"}
 
 # ---------- Azure Blob Storage ----------
 RAW_CONTAINER = "raw"

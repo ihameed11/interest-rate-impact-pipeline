@@ -45,7 +45,8 @@ services:
       - "9870:9870"   # HDFS web page: http://localhost:9870
     volumes:
       - namenode-data:/data/namenode
-      - ./src:/opt/project/src   # our code, visible inside the container
+      - ./src:/opt/project/src     # our code, visible inside the container
+      - ./data:/opt/project/data   # prepared inputs and job results
 
   datanode1:
     <<: *hadoop
