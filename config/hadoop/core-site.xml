@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Main Hadoop setting: where the file system lives. -->
+<configuration>
+  <!-- Every machine finds HDFS by asking the NameNode at this address. -->
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://namenode:9000</value>
+  </property>
+</configuration>

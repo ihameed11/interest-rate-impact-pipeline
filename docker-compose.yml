@@ -1,0 +1,76 @@
+# The local cluster. Each "service" below is one machine (container).
+# Start everything:  docker compose up -d
+# Stop everything:   docker compose down
+#
+# Hadoop part (this file so far):
+#   namenode          - index of the file system (HDFS)
+#   datanode1/2       - store the actual data, each block kept on both
+#   resourcemanager   - hands out work (YARN)
+#   nodemanager1/2    - do the work (run map and reduce tasks)
+# Spark and PostgreSQL are added in the next step.
+
+# Settings shared by every Hadoop machine: same image, built once.
+x-hadoop: &hadoop
+  image: irp-hadoop:3.4.1
+  build:
+    context: .
+    dockerfile: docker/hadoop/Dockerfile
+  networks:
+    - cluster
+
+services:
+  namenode:
+    <<: *hadoop
+    hostname: namenode
+    command: ["namenode"]
+    ports:
+      - "9870:9870"   # HDFS web page: http://localhost:9870
+    volumes:
+      - namenode-data:/data/namenode
+      - ./src:/opt/project/src   # our code, visible inside the container
+
+  datanode1:
+    <<: *hadoop
+    hostname: datanode1
+    command: ["datanode"]
+    depends_on: [namenode]
+    volumes:
+      - datanode1-data:/data/datanode
+
+  datanode2:
+    <<: *hadoop
+    hostname: datanode2
+    command: ["datanode"]
+    depends_on: [namenode]
+    volumes:
+      - datanode2-data:/data/datanode
+
+  resourcemanager:
+    <<: *hadoop
+    hostname: resourcemanager
+    command: ["resourcemanager"]
+    depends_on: [namenode]
+    ports:
+      - "8088:8088"   # YARN web page: http://localhost:8088
+
+  nodemanager1:
+    <<: *hadoop
+    hostname: nodemanager1
+    command: ["nodemanager"]
+    depends_on: [resourcemanager]
+
+  nodemanager2:
+    <<: *hadoop
+    hostname: nodemanager2
+    command: ["nodemanager"]
+    depends_on: [resourcemanager]
+
+# One private network so the machines can find each other by name.
+networks:
+  cluster:
+
+# Named volumes keep HDFS data when containers are stopped and restarted.
+volumes:
+  namenode-data:
+  datanode1-data:
+  datanode2-data:
